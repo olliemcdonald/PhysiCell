@@ -68,14 +68,15 @@
 #include <fstream>
 #include <string>
 
-static std::string PhysiCell_version = "1.2.1"; 
-static std::string PhysiCell_URL = "http://PhysiCell.MathCancer.org"; 
+static std::string PhysiCell_version = "1.2.1";
+static std::string PhysiCell_URL = "http://PhysiCell.MathCancer.org";
 
 #include "PhysiCell_phenotype.h"
+#include "PhysiCell_genotype.h"
 #include "PhysiCell_standard_models.h"
 #include "PhysiCell_cell.h"
 #include "PhysiCell_cell_container.h"
-// #include "PhysiCell_digital_cell_line.h" // to be deprecated! 
+// #include "PhysiCell_digital_cell_line.h" // to be deprecated!
 #include "PhysiCell_utilities.h"
 #include "PhysiCell_constants.h"
 

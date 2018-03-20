@@ -70,14 +70,14 @@ namespace PhysiCell{
 
 int writePov(std::vector<Cell*> all_cells, double timepoint, double scale)
 {
-	std::string filename; 
-	filename.resize( 1024 ); 
-//	sprintf( (char*) filename.c_str() , "output//cells_%i.pov" , (int)round(timepoint) ); 
-	sprintf( (char*) filename.c_str() , "%s/cells_%i.pov" , PhysiCell_settings.folder.c_str() ,  (int)round(timepoint) ); 
+	std::string filename;
+	filename.resize( 1024 );
+//	sprintf( (char*) filename.c_str() , "output//cells_%i.pov" , (int)round(timepoint) );
+	sprintf( (char*) filename.c_str() , "%s/cells_%i.pov" , PhysiCell_settings.folder.c_str() ,  (int)round(timepoint) );
 	std::ofstream povFile (filename.c_str(), std::ofstream::out);
 	povFile<<"#include \"colors.inc\" \n";
 	povFile<<"#include \"header.inc\" \n";
-	
+
 	for(int i=0;i<all_cells.size();i++)
 	{
 		std::string _nameCore;
@@ -104,9 +104,9 @@ int writePov(std::vector<Cell*> all_cells, double timepoint, double scale)
 			_nameCore="MISC";
 		std::string center= "<" + std::to_string(all_cells[i]->position[0]/scale) + "," + std::to_string(all_cells[i]->position[1]/scale) +","+ std::to_string(all_cells[i]->position[2]/scale) +">";
 		std::string core = "sphere {\n\t" + center + "\n\t " + std::to_string( all_cells[i]->phenotype.geometry.radius/scale) + "\n\t FinishMacro ( " + center +","+ _nameCore+ "Finish,"+ _nameCore + "*1)\n}\n";
-		povFile<< core;		
+		povFile<< core;
 	}
-	
+
 	povFile<<"#include \"footer.inc\" \n";
 	povFile.close();
 	return 0;
@@ -114,12 +114,12 @@ int writePov(std::vector<Cell*> all_cells, double timepoint, double scale)
 
 int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 {
-	std::string filename; 
-	filename.resize( 1024 ); 
-//	sprintf( (char*) filename.c_str() , "output//cells_%i.txt" , (int)round(timepoint) ); 
-	sprintf( (char*) filename.c_str() , "%s/cells_%i.txt" , PhysiCell_settings.folder.c_str() , (int)round(timepoint) ); 
+	std::string filename;
+	filename.resize( 1024 );
+//	sprintf( (char*) filename.c_str() , "output//cells_%i.txt" , (int)round(timepoint) );
+	sprintf( (char*) filename.c_str() , "%s/cells_%i.txt" , PhysiCell_settings.folder.c_str() , (int)round(timepoint) );
 	std::ofstream povFile (filename.c_str(), std::ofstream::out);
-	povFile<<"\tID\tx\ty\tz\tradius\tvolume_total\tvolume_nuclear_fluid\tvolume_nuclear_solid\tvolume_cytoplasmic_fluid\tvolume_cytoplasmic_solid\tvolume_calcified_fraction\tphenotype\telapsed_time\n";
+	povFile<<"\tID\tx\ty\tz\tradius\tvolume_total\tvolume_nuclear_fluid\tvolume_nuclear_solid\tvolume_cytoplasmic_fluid\tvolume_cytoplasmic_solid\tvolume_calcified_fraction\tphenotype\telapsed_time\tgenotype\n";
 	int phenotype_code;
 	for(int i=0;i<all_cells.size();i++)
 	{
@@ -128,9 +128,10 @@ int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 		povFile<<i<<"\t"<<all_cells[i]->ID<<"\t"<<all_cells[i]->position[0]<<"\t" << all_cells[i]->position[1] <<"\t"<< all_cells[i]->position[2]<<"\t";
 		povFile<<all_cells[i]->phenotype.geometry.radius<<"\t"<<all_cells[i]->phenotype.volume.total<<"\t"<<all_cells[i]->phenotype.volume.nuclear_fluid
 		<<"\t"<<all_cells[i]->phenotype.volume.nuclear_solid<<"\t"<<all_cells[i]->phenotype.volume.cytoplasmic_fluid<<"\t"<<
-		all_cells[i]->phenotype.volume.cytoplasmic_solid<<"\t"<<all_cells[i]->phenotype.volume.calcified_fraction<<"\t"<<phenotype_code<< 
-		// "\t"<< all_cells[i]->phenotype.cycle.phases[all_cells[i]->phenotype.current_phase_index].elapsed_time <<std::endl;		
-		"\t"<< all_cells[i]->phenotype.cycle.data.elapsed_time_in_phase <<std::endl;		
+		all_cells[i]->phenotype.volume.cytoplasmic_solid<<"\t"<<all_cells[i]->phenotype.volume.calcified_fraction<<"\t"<<phenotype_code<<
+		// "\t"<< all_cells[i]->phenotype.cycle.phases[all_cells[i]->phenotype.current_phase_index].elapsed_time <<std::endl;
+		"\t"<< all_cells[i]->phenotype.cycle.data.elapsed_time_in_phase <<
+		"\t" << all_cells[i]->genotype.genotype << std::endl;
 	}
 	povFile.close();
 	return 0;
@@ -138,24 +139,24 @@ int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 
 void display_simulation_status( std::ostream& os )
 {
-	os << "current simulated time: " << PhysiCell_globals.current_time << " " << 
-		PhysiCell_settings.time_units << " (max: " << 
-		PhysiCell_settings.max_time << " " << 
-		PhysiCell_settings.time_units << ")" << std::endl; 
-		
-	os << "total agents: " << all_cells->size() << std::endl; 
-	
+	os << "current simulated time: " << PhysiCell_globals.current_time << " " <<
+		PhysiCell_settings.time_units << " (max: " <<
+		PhysiCell_settings.max_time << " " <<
+		PhysiCell_settings.time_units << ")" << std::endl;
+
+	os << "total agents: " << all_cells->size() << std::endl;
+
 	os << "interval wall time: ";
 	BioFVM::TOC();
-	BioFVM::display_stopwatch_value( os , BioFVM::stopwatch_value() ); 
-	os << std::endl; 
-	BioFVM::TIC(); 
-	
-	os << "total wall time: "; 
+	BioFVM::display_stopwatch_value( os , BioFVM::stopwatch_value() );
+	os << std::endl;
+	BioFVM::TIC();
+
+	os << "total wall time: ";
 	BioFVM::RUNTIME_TOC();
-	BioFVM::display_stopwatch_value( os , BioFVM::runtime_stopwatch_value() ); 
-	os << std::endl << std::endl; 
-	
+	BioFVM::display_stopwatch_value( os , BioFVM::runtime_stopwatch_value() );
+	os << std::endl << std::endl;
+
 	return;
 }
 
@@ -164,36 +165,36 @@ void log_output(double t, int output_index, Microenvironment microenvironment, s
 	double scale=1000;
 	int num_new_cells= 0;
 	int num_deaths=0;
-//	std::cout << "current simulated time: " << t   << " minutes " << std::endl; 
+//	std::cout << "current simulated time: " << t   << " minutes " << std::endl;
 //	std::cout << "interval wall time: ";
 //	BioFVM::TOC();
-//	BioFVM::display_stopwatch_value( std::cout , BioFVM::stopwatch_value() ); 
-//	std::cout << std::endl; 
-//	std::cout << "total wall time: "; 
-//	BioFVM::RUNTIME_TOC();
-//	BioFVM::display_stopwatch_value( std::cout , BioFVM::runtime_stopwatch_value() ); 
+//	BioFVM::display_stopwatch_value( std::cout , BioFVM::stopwatch_value() );
 //	std::cout << std::endl;
-	
+//	std::cout << "total wall time: ";
+//	BioFVM::RUNTIME_TOC();
+//	BioFVM::display_stopwatch_value( std::cout , BioFVM::runtime_stopwatch_value() );
+//	std::cout << std::endl;
+
 	std::cout << "time: "<<t<<std::endl;
 	num_new_cells=t==0?all_basic_agents.size():((Cell_Container *)microenvironment.agent_container)->num_divisions_in_current_step;
 	num_deaths=((Cell_Container *)microenvironment.agent_container)->num_deaths_in_current_step;
-	std::cout<<"total number of agents (newly born, deaths): " << (*all_cells).size()<<"("<<num_new_cells<<", "<<num_deaths<<")" << std::endl; 
-	report_file<<t<<"\t"<<(*all_cells).size()<<"\t"<<num_new_cells<<"\t"<<num_deaths<<"\t"<<BioFVM::stopwatch_value()<< std::endl; 
+	std::cout<<"total number of agents (newly born, deaths): " << (*all_cells).size()<<"("<<num_new_cells<<", "<<num_deaths<<")" << std::endl;
+	report_file<<t<<"\t"<<(*all_cells).size()<<"\t"<<num_new_cells<<"\t"<<num_deaths<<"\t"<<BioFVM::stopwatch_value()<< std::endl;
 //	BioFVM::TIC();
-	
+
 	((Cell_Container *)microenvironment.agent_container)->num_divisions_in_current_step=0;
 	((Cell_Container *)microenvironment.agent_container)->num_deaths_in_current_step=0;
-	writePov(*all_cells, t, scale);
+	//writePov(*all_cells, t, scale);
 	writeCellReport(*all_cells, t);
-	std::string filename; 
-	filename.resize( 1024 , '\0' ); 
-	sprintf( (char*) filename.c_str() , "output%08d.mat" , output_index ); 
-	filename.resize( strlen( filename.c_str() ) ); 
-	// std::cout << "\tWriting to file " << filename << " ... " << std::endl; 
-	// microenvironment.write_to_matlab( filename ); 
-	
+	std::string filename;
+	filename.resize( 1024 , '\0' );
+	sprintf( (char*) filename.c_str() , "output%08d.mat" , output_index );
+	filename.resize( strlen( filename.c_str() ) );
+	// std::cout << "\tWriting to file " << filename << " ... " << std::endl;
+	// microenvironment.write_to_matlab( filename );
+
 	return;
 }
 
-	
+
 };

@@ -72,23 +72,23 @@
 
 namespace PhysiCell{
 
-class Cell; 
+class Cell;
 
 class Cell_Container : public BioFVM::Agent_Container
 {
- private:	
+ private:
 	std::vector<Cell*> cells_ready_to_divide; // the index of agents ready to divide
 	std::vector<Cell*> cells_ready_to_die;
 	int boundary_condition_for_pushed_out_agents; 	// what to do with pushed out cells
 	bool initialzed = false;
-	
+
  public:
 	BioFVM::Cartesian_Mesh underlying_mesh;
 	std::vector<double> max_cell_interactive_distance_in_voxel;
 	int num_divisions_in_current_step;
 	int num_deaths_in_current_step;
 
-	double last_diffusion_time  = 0.0; 
+	double last_diffusion_time  = 0.0;
 	double last_cell_cycle_time = 0.0;
 	double last_mechanics_time  = 0.0;
 	Cell_Container();
@@ -96,27 +96,27 @@ class Cell_Container : public BioFVM::Agent_Container
 	void initialize(double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx, double dy, double dz);
 	std::vector<std::vector<Cell*> > agent_grid;
 	std::vector<std::vector<Cell*> > agents_in_outer_voxels;
-	
+
 	void update_all_cells(double t);
 	void update_all_cells(double t, double dt);
 	void update_all_cells(double t, double phenotype_dt, double mechanics_dt);
-	void update_all_cells(double t, double phenotype_dt, double mechanics_dt, double diffusion_dt ); 
+	void update_all_cells(double t, double phenotype_dt, double mechanics_dt, double diffusion_dt );
 
 	void register_agent( Cell* agent );
 	void add_agent_to_outer_voxel(Cell* agent);
 	void remove_agent(Cell* agent );
 	void remove_agent_from_voxel(Cell* agent, int voxel_index);
 	void add_agent_to_voxel(Cell* agent, int voxel_index);
-	
-	void flag_cell_for_division( Cell* pCell ); 
-	void flag_cell_for_removal( Cell* pCell ); 
+
+	void flag_cell_for_division( Cell* pCell );
+	void flag_cell_for_removal( Cell* pCell );
 	bool contain_any_cell(int voxel_index);
 };
 
 int find_escaping_face_index(Cell* agent);
-extern std::vector<Cell*> *all_cells; 
+extern std::vector<Cell*> *all_cells;
 
 Cell_Container* create_cell_container_for_microenvironment( BioFVM::Microenvironment& m , double mechanics_voxel_size );
-	
+
 };
 #endif

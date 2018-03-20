@@ -77,7 +77,7 @@ long SeedRandom( long input )
 
 
 long SeedRandom( void )
-{ 
+{
 	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 	gen.seed(seed);
 	return seed;
@@ -91,22 +91,28 @@ double UniformRandom()
 double NormalRandom( double mean, double standard_deviation )
 {
 	std::normal_distribution<> d(mean,standard_deviation);
-	return d(gen); 
+	return d(gen);
+}
+
+int PoissonRandom( double rate )
+{
+	std::poisson_distribution<> d(rate);
+	return d(gen);
 }
 
 // Squared distance between two points
-// This is already in BioFVM_vector as: 
-// double norm_squared( const std::vector<double>& v ); 
-// The following function will be deprecated. 
+// This is already in BioFVM_vector as:
+// double norm_squared( const std::vector<double>& v );
+// The following function will be deprecated.
 double dist_squared(std::vector<double> p1, std::vector<double> p2)
 {
 	return (p1[0]-p2[0])*(p1[0]-p2[0]) + (p1[1]-p2[1])*(p1[1]-p2[1]) + (p1[2]-p2[2])*(p1[2]-p2[2]);
 }
 
 // Distance between two points
-// This is already in BioFVM_vector as: 
-// double norm( const std::vector<double>& v ); 
-// The following function will be deprecated. 
+// This is already in BioFVM_vector as:
+// double norm( const std::vector<double>& v );
+// The following function will be deprecated.
 double dist(std::vector<double> p1, std::vector<double> p2)
 {
 	return sqrt(dist_squared(p1, p2));

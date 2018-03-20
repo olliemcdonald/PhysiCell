@@ -78,6 +78,7 @@ long SeedRandom( long input );
 long SeedRandom( void );
 double UniformRandom( void );
 double NormalRandom( double mean, double standard_deviation );
+int PoissonRandom( double rate );
 double dist_squared(std::vector<double> p1, std::vector<double> p2);
 double dist(std::vector<double> p1, std::vector<double> p2);
 
