@@ -63,6 +63,14 @@
 
 #include "./custom.h"
 
+// macros for customizable cell parameters and scenarios
+#define BIRTH_RATE 0.01
+#define DEATH_RATE 0.001
+// copy_number_alteration_model or cna_fitness_model
+#define CNA_MODEL copy_number_alteration_model
+#define CNA_PROB 0.05
+
+
 // declare cell definitions here
 
 Cell_Definition motile_cell;
@@ -89,8 +97,8 @@ void create_cell_types( void )
 	// End adding new live phase info for cell death/removal
 	cell_defaults.functions.cycle_model = birth_death; // NOTE: Uses stochastic splitting according to birth death process
 	cell_defaults.genotype.genotype="0";
-	cell_defaults.genotype.alter_genotype = cna_fitness_model;
-	cell_defaults.genotype.cna_prob = 0.05;
+	cell_defaults.genotype.alter_genotype = CNA_MODEL;
+	cell_defaults.genotype.cna_prob = CNA_PROB;
 
 	// set default_cell_functions;
 	// cell_defaults.functions.update_phenotype = update_cell_and_death_parameters_O2_based;
@@ -230,9 +238,9 @@ void create_birthdeath_model( void )
 	birth_death.add_phase(PhysiCell_constants::custom_phase , "Dead");
 
 	birth_death.add_phase_link( 0 , 0 , NULL );
-	birth_death.transition_rate(0, 0) = 0.1;
+	birth_death.transition_rate(0, 0) = BIRTH_RATE;
 	birth_death.add_phase_link( 0 , 1 , NULL );
-	birth_death.transition_rate(0, 1) = 0.01;
+	birth_death.transition_rate(0, 1) = DEATH_RATE;
 
 	birth_death.phases[0].entry_function = standard_live_phase_entry_function;
 
