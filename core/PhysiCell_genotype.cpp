@@ -14,7 +14,7 @@ namespace PhysiCell{
 
 Genotype::Genotype()
 {
-  genotype = "";
+  genotype_id = "";
   cna_prob = 0.0;
   snv_prob = 0.0;
   int cna_counter = 0;
@@ -44,18 +44,14 @@ void Genotype::copynumber_change()
 
 void Genotype::update_copynumber_gradual()
 {
-  genotype = genotype + ">" + std::to_string(cna_counter);
-
-  // include fitness adjustments later
+  genotype_id = genotype_id + ">" + std::to_string(cna_counter);
 }
 
 void Genotype::update_copynumber_punctuation()
 {
   int pois_rv = PoissonRandom(punctuated_poisson_parameter) + 1;  // rand_pois;
-  genotype = genotype + ">" + std::to_string(cna_counter) + "." +
+  genotype_id = genotype_id + ">" + std::to_string(cna_counter) + "." +
              std::to_string(pois_rv);
-
-  // include fitness adjustments later
 }
 
 };

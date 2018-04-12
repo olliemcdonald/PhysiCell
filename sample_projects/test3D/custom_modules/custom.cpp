@@ -67,7 +67,7 @@
 #define BIRTH_RATE 0.01
 #define DEATH_RATE 0.001
 // copy_number_alteration_model or cna_fitness_model
-#define CNA_MODEL copy_number_alteration_model
+#define CNA_MODEL cna_fitness_model
 #define CNA_PROB 0.05
 
 
@@ -96,7 +96,7 @@ void create_cell_types( void )
 
 	// End adding new live phase info for cell death/removal
 	cell_defaults.functions.cycle_model = birth_death; // NOTE: Uses stochastic splitting according to birth death process
-	cell_defaults.genotype.genotype="0";
+	cell_defaults.genotype.genotype_id="0";
 	cell_defaults.genotype.alter_genotype = CNA_MODEL;
 	cell_defaults.genotype.cna_prob = CNA_PROB;
 
@@ -206,6 +206,7 @@ void setup_tissue( void )
 
 	pC = create_cell( motile_cell );
 	pC->assign_position( 0.0, 0.0, 0.0 );
+	pC->genotype.genotype_id="0";
 
   /* Commented out to initialize with single cell
 	pC = create_cell();
@@ -275,6 +276,12 @@ void copy_number_alteration_model( Cell* pCell, Genotype& genotype)
 		if (cna_runif < genotype.cna_prob)
 		{
 			genotype.copynumber_change();
+
+			(*genotype.genome_file) <<
+				PhysiCell_globals.current_time << "\t" <<
+				genotype.genotype_id << "\t" <<
+				pCell->phenotype.cycle.data.transition_rates[0][0] << "\t" <<
+				pCell->phenotype.cycle.data.transition_rates[0][1] << std::endl;
 		}
 	}
 	return;
@@ -290,8 +297,15 @@ void cna_fitness_model(Cell* pCell, Genotype& genotype)
 		{
 			// Add an additional fitness that is an exponential increase with rate 30
 			double addl_fitness = generate_double_exponential_rv(50.0);
-			pCell->phenotype.cycle.data.transition_rates[0][0] += addl_fitness;
+			pCell->phenotype.cycle.data.transition_rates[0][0] = fmax(pCell->phenotype.cycle.data.transition_rates[0][0]+addl_fitness, 0);
+
 			genotype.copynumber_change();
+
+			(*genotype.genome_file) <<
+				PhysiCell_globals.current_time << "\t" <<
+				genotype.genotype_id << "\t" <<
+				pCell->phenotype.cycle.data.transition_rates[0][0] << "\t" <<
+				pCell->phenotype.cycle.data.transition_rates[0][1] << std::endl;
 		}
 	}
 	return;

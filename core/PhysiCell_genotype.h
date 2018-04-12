@@ -21,7 +21,9 @@ class Genotype
 {
 private:
 public:
-  std::string genotype;
+  static std::ofstream* genome_file;
+
+  std::string genotype_id;
   double cna_prob;
   double snv_prob;
 

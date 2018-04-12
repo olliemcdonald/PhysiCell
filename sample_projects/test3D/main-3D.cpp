@@ -72,8 +72,8 @@
 #include "./core/PhysiCell.h"
 #include "./modules/PhysiCell_standard_modules.h"
 // put custom code modules here!
-
 #include "./custom_modules/custom.h"
+std::ofstream* Genotype::genome_file;
 
 using namespace BioFVM;
 using namespace PhysiCell;
@@ -96,14 +96,6 @@ int main( int argc, char* argv[] )
 
 	// time setup
 	std::string time_units = "min";
-
-	/* XXX REMOVED
-	double t = 0.0; // current simulation time
-	double t_output_interval = 1.0; // Every hour
-	double t_max = 150;//5 * 60 * 24; // 10 days
-	double t_next_output_time = t;
-	int output_index = 0; // used for creating unique output filenames
-	*/
 
 	/* Microenvironment setup */
 
@@ -134,15 +126,34 @@ int main( int argc, char* argv[] )
 	BioFVM::RUNTIME_TIC();
 	BioFVM::TIC();
 
+	// create of simulation report file
 	std::ofstream report_file;
 	char filename[1024];
 	sprintf( filename , "%s/simulation_report.txt" , PhysiCell_settings.folder.c_str() );
 	report_file.open(filename); 	// create the data log file
 	report_file<<"simulated time\tnum cells\tnum division\tnum death\twall time"<<std::endl;
 
+	// create clone report file
+	std::ofstream clone_file;
+	char clone_filename[1024];
+	sprintf( clone_filename, "%s/clone_report.txt" , PhysiCell_settings.folder.c_str() );
+	clone_file.open(clone_filename);
+	clone_file<<"birth time\tgenotype\tbirth rate\tdeath rate"<<std::endl;
+	// ancestor clone
+	Genotype::genome_file = &clone_file;
+
 	// main loop
 	try
 	{
+		// Begin by outputting ancestor clone information to genome_file
+		for( int i=0; i < (*all_cells).size(); i++ )
+		{
+			*(Genotype::genome_file) << PhysiCell_globals.current_time << "\t" <<
+			(*all_cells)[i]->genotype.genotype_id << "\t" <<
+			(*all_cells)[i]->phenotype.cycle.data.transition_rates[0][0] << "\t" <<
+			(*all_cells)[i]->phenotype.cycle.data.transition_rates[0][1] << std::endl;
+		}
+
 		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt )
 		{
 			// save data if it's time.
@@ -164,6 +175,7 @@ int main( int argc, char* argv[] )
 		}
 		log_output(PhysiCell_globals.current_time, PhysiCell_globals.full_output_index, microenvironment, report_file);
 		report_file.close();
+		clone_file.close();
 	}
 	catch( const std::exception& e )
 	{ // reference to the base of a polymorphic object
