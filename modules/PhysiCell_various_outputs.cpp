@@ -131,7 +131,7 @@ int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 		all_cells[i]->phenotype.volume.cytoplasmic_solid<<"\t"<<all_cells[i]->phenotype.volume.calcified_fraction<<"\t"<<phenotype_code<<
 		// "\t"<< all_cells[i]->phenotype.cycle.phases[all_cells[i]->phenotype.current_phase_index].elapsed_time <<std::endl;
 		"\t"<< all_cells[i]->phenotype.cycle.data.elapsed_time_in_phase <<
-		"\t" << all_cells[i]->genotype.genotype << std::endl;
+		"\t" << all_cells[i]->genotype.genotype_id << std::endl;
 	}
 	povFile.close();
 	return 0;
