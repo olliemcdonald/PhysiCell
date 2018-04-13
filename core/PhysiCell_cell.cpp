@@ -316,6 +316,7 @@ Cell::Cell()
 	is_movable = true;
 	is_out_of_domain = false;
 	displacement.resize(3,0.0); // state?
+	velocity_flag = false;
 
 	assign_orientation();
 	container = NULL;
@@ -765,6 +766,8 @@ void Cell::add_potentials(Cell* other_agent)
 	// }
 	axpy( &velocity , temp_r , displacement );
 
+	temp_r = temp_r * -1;
+	axpy( &(other_agent->velocity) , temp_r , displacement );
 	return;
 }
 

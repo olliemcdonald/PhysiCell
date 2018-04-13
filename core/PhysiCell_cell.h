@@ -168,6 +168,7 @@ class Cell : public Basic_Agent
 
 	bool is_out_of_domain;
 	bool is_movable;
+  bool velocity_flag;
 
 	void flag_for_division( void ); // done
 	void flag_for_removal( void ); // done

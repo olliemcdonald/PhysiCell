@@ -333,6 +333,8 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			{
 				(*all_cells)[i]->update_position(time_since_last_mechanics);
 			}
+			// reset velocity flag for next interation
+		  (*all_cells)[i]->velocity_flag = false;
 		}
 
 		// When somebody reviews this code, let's add proper braces for clarity!!!
