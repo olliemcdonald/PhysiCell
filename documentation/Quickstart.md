@@ -43,16 +43,16 @@ After installing brew, type `brew install gcc` from a Terminal command line. Thi
 should install a recent version of gcc/g++ (supporting OpenMP) into `/usr/local/bin`. You can verify this with:
 ```
 $ ls -l /usr/local/bin/g++*
-lrwxr-xr-x  1 heiland  admin  29 Oct  3 14:38 /usr/local/bin/g++-7@ -> ../Cellar/gcc/7.2.0/bin/g++-7
+lrwxr-xr-x  1 heiland  admin  29 Oct  3 14:38 /usr/local/bin/g++-8@ -> ../Cellar/gcc/7.2.0/bin/g++-8
 ```
 
 Set the following environment variable in your Terminal's shell, e.g., in the bash shell: 
 ```
-$ export PHYSICELL_CPP=/usr/local/bin/g++-7
+$ export PHYSICELL_CPP=/usr/local/bin/g++-8
 ```
 and the Makefile will use it. You should permanently set this in your environment via: 
 
-`$ echo export PHYSICELL_CPP=g++-7 >> ~/.bash_profile`.
+`$ echo export PHYSICELL_CPP=g++-8 >> ~/.bash_profile`.
 
 ### Linux
 
@@ -74,7 +74,7 @@ $ make                      # compile the project
 
 <!-- Note: the first `make` command silently copies over project-specific files, including the Makefile. The 
 second `make` command attempts to compile the (new) code. Since the Makefile is being overwritten, any edits you
-may have done to the previous Makefile (e.g., changing `CC` to point to `g++-7` on OSX) will be lost. You'll need
+may have done to the previous Makefile (e.g., changing `CC` to point to `g++-8` on OSX) will be lost. You'll need
 to edit it again or find another workaround. -->
 
 Assuming the project builds without errors, you should now have an executable called `biorobots` which you can run, e.g.:

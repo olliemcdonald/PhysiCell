@@ -1095,7 +1095,7 @@ LaTeX Warning: Reference `sec:blog_and_help' on page 1 undefined on input line
 {C:/Users/Paul/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
 Overfull \hbox (4.0464pt too wide) in paragraph at lines 219--221
 [][][]\OT1/cmtt/m/n/12 your_compiler_name []\OT1/cmr/m/n/12 will be some-thing 
-like [][]\OT1/cmtt/m/n/12 g++-7 []\OT1/cmr/m/n/12 for Home-brew in-stal-la-tion
+like [][]\OT1/cmtt/m/n/12 g++-8 []\OT1/cmr/m/n/12 for Home-brew in-stal-la-tion
 s, and some-thing like [][]\OT1/cmtt/m/n/12 g++-mp-7
  []
 

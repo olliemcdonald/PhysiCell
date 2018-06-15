@@ -3,10 +3,10 @@ PROGRAM_NAME := beta-testing
 
 CC := g++
 # CC := g++-mp-7 # typical macports compiler name
-# CC := g++-7 # typical homebrew compiler name 
+# CC := g++-8 # typical homebrew compiler name 
 
 # Check for environment definitions of compiler 
-# e.g., on CC = g++-7 on OSX
+# e.g., on CC = g++-8 on OSX
 ifdef PHYSICELL_CPP 
 	CC := $(PHYSICELL_CPP)
 endif
