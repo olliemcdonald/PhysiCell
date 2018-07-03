@@ -72,6 +72,8 @@ void tumor_cell_phenotype_with_oncoprotein( Cell* pCell, Phenotype& phenotype, d
 // any additional cell types (beyond cell_defaults)
 
 extern Cell_Definition motile_cell;
+extern std::vector<Cell_Definition*> cell_definition_vector;
+
 
 // custom cell phenotype functions could go here
 
@@ -79,6 +81,8 @@ extern Cell_Definition motile_cell;
 
 void create_cell_types( void );
 void setup_tissue( void );
+void setup_tissue( std::string );
+
 
 // set up the BioFVM microenvironment
 void setup_microenvironment( void );
@@ -86,11 +90,12 @@ void setup_microenvironment( void );
 // added functions for birth-death type
 extern Cycle_Model birth_death;
 void create_birthdeath_model( void );
+void create_new_cell_definition( Cell_Definition* new_def, std::string def_name, double birth_rate, double death_rate, int* num_types );
 void phase_link_death( Cell* pCell, Phenotype& phenotype, double dt );
 void phase_link_division( Cell* pCell, Phenotype& phenotype, double dt );
 void live_phase_entry_function_cell_death( Cell* pCell, Phenotype& phenotype, double dt );
 
-
+void empty_cna_function( Cell* pCell, Genotype& genotype);
 void copy_number_alteration_model( Cell* pCell, Genotype& genotype);
 void cna_fitness_model(Cell* pCell, Genotype& genotype);
 double generate_double_exponential_rv(double rate);

@@ -60,24 +60,40 @@
 #                                                                             #
 ###############################################################################
 */
-
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 #include "./custom.h"
 
+
 // macros for customizable cell parameters and scenarios
-#define BIRTH_RATE 0.01
-#define DEATH_RATE 0.001
+#define BIRTH_RATE_SENS 0.01
+#define DEATH_RATE_SENS 0.002
+#define BIRTH_RATE_RES 0.009
+#define DEATH_RATE_RES 0.002
+
+#define BIRTH_RATE_TRT_SENS 0.0005
+#define DEATH_RATE_TRT_SENS 0.02
+#define BIRTH_RATE_TRT_RES 0.005
+#define DEATH_RATE_TRT_RES 0.002
+
 // copy_number_alteration_model or cna_fitness_model
-#define CNA_MODEL cna_fitness_model
-#define CNA_PROB 0.05
+#define CNA_MODEL empty_cna_function;
+#define CNA_PROB 0.00
 
 
 // declare cell definitions here
+int num_cell_definitions = 0;
+std::vector<int> *cell_counts_by_def = new std::vector<int>;
+std::vector<Cell_Definition*> cell_definition_vector;
 
 Cell_Definition motile_cell;
 Cycle_Model birth_death;
 
 void create_cell_types( void )
 {
+
 	// use the same random seed so that future experiments have the
 	// same initial histogram of oncoprotein, even if threading means
 	// that future division and other events are still not identical
@@ -91,7 +107,7 @@ void create_cell_types( void )
 
 	// Name the default cell type
 
-	cell_defaults.type = 0;
+	cell_defaults.type = 0; // assign type and increment
 	cell_defaults.name = "tumor cell";
 
 	// End adding new live phase info for cell death/removal
@@ -105,7 +121,7 @@ void create_cell_types( void )
 	cell_defaults.functions.update_phenotype = NULL;
 	cell_defaults.functions.volume_update_function = empty_function;
 
-	/* only needed for a 2-D simulation:
+	//* only needed for a 2-D simulation:
 	cell_defaults.functions.set_orientation = up_orientation;
 	cell_defaults.phenotype.geometry.polarity = 1.0;
 	cell_defaults.phenotype.motility.restrict_to_2D = true;
@@ -134,18 +150,14 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.secretion_rates[oxygen_substrate_index] = 0;
 	cell_defaults.phenotype.secretion.saturation_densities[oxygen_substrate_index] = 38;
 
-	// add custom data here, if any
 
-
-
+//	cell_definition_vector.push_back(cell_defaults);
 	// Now, let's define another cell type.
 	// It's best to just copy the default and modify it.
 
 	// make this cell type randomly motile, less adhesive, greater survival,
 	// and less proliferative
-
 	motile_cell = cell_defaults;
-	motile_cell.type = 1;
 	motile_cell.name = "motile tumor cell";
 
 	// make sure the new cell type has its own reference phenotyhpe
@@ -161,11 +173,32 @@ void create_cell_types( void )
 	// Set cell-cell adhesion to 5% of other cells
 	motile_cell.phenotype.mechanics.cell_cell_adhesion_strength *= 0.05;
 
+	// NOTE: To alter the transition rate of a specific types
+	//motile_cell.phenotype.cycle.data.transition_rate(0,0) = 1.0;
+
 	// Set apoptosis to zero
 	motile_cell.phenotype.death.rates[apoptosis_model_index] = 0.0;
 
-	// NOTE: To alter the transition rate of a specific types
-	//motile_cell.phenotype.cycle.data.transition_rate(0,0) = 1.0;
+	// Definition of sensitive and resistant cells
+	Cell_Definition* sensitive = new Cell_Definition(motile_cell);
+	cell_definition_vector.push_back(sensitive);
+	create_new_cell_definition( sensitive, "sensitive", BIRTH_RATE_SENS, DEATH_RATE_SENS, &num_cell_definitions );
+	(*cell_counts_by_def).push_back(0);
+
+	Cell_Definition* resistant = new Cell_Definition(motile_cell);
+	cell_definition_vector.push_back(resistant);
+	create_new_cell_definition( resistant, "resistant", BIRTH_RATE_RES, DEATH_RATE_RES, &num_cell_definitions );
+	(*cell_counts_by_def).push_back(0);
+
+	Cell_Definition* sensitive_treatment = new Cell_Definition(motile_cell);
+	cell_definition_vector.push_back(sensitive_treatment);
+	create_new_cell_definition( sensitive_treatment, "sensitive_treatment", BIRTH_RATE_TRT_SENS, DEATH_RATE_TRT_SENS, &num_cell_definitions );
+	(*cell_counts_by_def).push_back(0);
+
+	Cell_Definition* resistant_treatment = new Cell_Definition(motile_cell);
+	cell_definition_vector.push_back(resistant_treatment);
+	create_new_cell_definition( resistant_treatment, "resistant_treatment", BIRTH_RATE_TRT_RES, DEATH_RATE_TRT_RES, &num_cell_definitions );
+	(*cell_counts_by_def).push_back(0);
 
 	return;
 }
@@ -176,8 +209,8 @@ void setup_microenvironment( void )
 
 	default_microenvironment_options.X_range = {-300, 300};
 	default_microenvironment_options.Y_range = {-300, 300};
-	default_microenvironment_options.Z_range = {-300, 300};
-	default_microenvironment_options.simulate_2D = false; // 3D!
+	default_microenvironment_options.Z_range = {-30, 30};
+	default_microenvironment_options.simulate_2D = true; // 3D!
 
 	// no gradients need for this example
 
@@ -224,6 +257,48 @@ void setup_tissue( void )
 	return;
 }
 
+// function to import from a file
+void setup_tissue( std::string input_file )
+{
+	// create some cells near the origin
+	std::ifstream infile(input_file);
+	Cell* pC;
+	int iter = 1;
+
+	while (infile)
+  {
+    std::string s;
+    if (!getline( infile, s )) break;
+
+    std::istringstream ss( s );
+		int x_coord;
+		int y_coord;
+		int z_coord;
+		std::string cell_type;
+
+		ss >> x_coord;
+		ss >> y_coord;
+		ss >> z_coord;
+		ss >> cell_type;
+		if(cell_type == "sensitive")
+		{
+			pC = create_cell( *(cell_definition_vector[0]) ); // sensitive cell definition
+		}
+		else if(cell_type == "resistant")
+		{
+			pC = create_cell( *(cell_definition_vector[1]) ); // resistant cell definition
+		}
+		else
+		{
+			pC = create_cell(); // motile cell definition
+		}
+
+		pC->assign_position( x_coord, y_coord, z_coord );
+		pC->genotype.genotype_id="0"+ std::to_string(iter);
+  }
+	return;
+}
+
 void create_birthdeath_model( void )
 {
 	// Create a 2-phase model for live and "dead" cells
@@ -239,9 +314,9 @@ void create_birthdeath_model( void )
 	birth_death.add_phase(PhysiCell_constants::custom_phase , "Dead");
 
 	birth_death.add_phase_link( 0 , 0 , NULL );
-	birth_death.transition_rate(0, 0) = BIRTH_RATE;
+	birth_death.transition_rate(0, 0) = BIRTH_RATE_SENS;
 	birth_death.add_phase_link( 0 , 1 , NULL );
-	birth_death.transition_rate(0, 1) = DEATH_RATE;
+	birth_death.transition_rate(0, 1) = DEATH_RATE_SENS;
 
 	birth_death.phases[0].entry_function = standard_live_phase_entry_function;
 
@@ -253,6 +328,15 @@ void create_birthdeath_model( void )
 	birth_death.phase_links[0][1].exit_function = phase_link_death;
 
 	return;
+}
+
+void create_new_cell_definition( Cell_Definition* new_def, std::string def_name, double birth_rate, double death_rate, int* num_types )
+{
+	new_def->name = def_name;
+	new_def->phenotype.cycle.data.transition_rate(0,0) = birth_rate;
+	new_def->phenotype.cycle.data.transition_rate(0,1) = death_rate;
+	int curr_index = *num_types;
+	(*num_types)++;
 }
 
 void phase_link_death( Cell* pCell, Phenotype& phenotype, double dt )
@@ -267,6 +351,11 @@ void phase_link_division( Cell* pCell, Phenotype& phenotype, double dt )
 	return;
 }
 
+
+void empty_cna_function( Cell* pCell, Genotype& genotype)
+{
+	return;
+}
 
 void copy_number_alteration_model( Cell* pCell, Genotype& genotype)
 {

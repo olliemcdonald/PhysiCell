@@ -1,0 +1,7 @@
+0 20 0 sensitive
+20 0 0 sensitive
+20 20 0 sensitive
+-20 0 0 sensitive
+0 -20 0 sensitive
+-20 -20 0 sensitive
+0 0 0 resistant

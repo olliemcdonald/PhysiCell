@@ -119,7 +119,7 @@ int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 //	sprintf( (char*) filename.c_str() , "output//cells_%i.txt" , (int)round(timepoint) );
 	sprintf( (char*) filename.c_str() , "%s/cells_%i.txt" , PhysiCell_settings.folder.c_str() , (int)round(timepoint) );
 	std::ofstream povFile (filename.c_str(), std::ofstream::out);
-	povFile<<"\tID\tx\ty\tz\tradius\tvolume_total\tvolume_nuclear_fluid\tvolume_nuclear_solid\tvolume_cytoplasmic_fluid\tvolume_cytoplasmic_solid\tvolume_calcified_fraction\tphenotype\telapsed_time\tgenotype\n";
+	povFile<<"\tID\tx\ty\tz\tradius\tvolume_total\tvolume_nuclear_fluid\tvolume_nuclear_solid\tvolume_cytoplasmic_fluid\tvolume_cytoplasmic_solid\tvolume_calcified_fraction\tphenotype\telapsed_time\tgenotype\ttype\n";
 	int phenotype_code;
 	for(int i=0;i<all_cells.size();i++)
 	{
@@ -131,7 +131,7 @@ int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 		all_cells[i]->phenotype.volume.cytoplasmic_solid<<"\t"<<all_cells[i]->phenotype.volume.calcified_fraction<<"\t"<<phenotype_code<<
 		// "\t"<< all_cells[i]->phenotype.cycle.phases[all_cells[i]->phenotype.current_phase_index].elapsed_time <<std::endl;
 		"\t"<< all_cells[i]->phenotype.cycle.data.elapsed_time_in_phase <<
-		"\t" << all_cells[i]->genotype.genotype_id << std::endl;
+		"\t" << all_cells[i]->genotype.genotype_id <<"\t" << all_cells[i]->type << std::endl;
 	}
 	povFile.close();
 	return 0;
