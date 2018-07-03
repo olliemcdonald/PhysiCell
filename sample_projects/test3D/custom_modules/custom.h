@@ -90,12 +90,9 @@ void setup_microenvironment( void );
 // added functions for birth-death type
 extern Cycle_Model birth_death;
 void create_birthdeath_model( void );
-void create_new_cell_definition( Cell_Definition* new_def, std::string def_name, double birth_rate, double death_rate, int* num_types );
 void phase_link_death( Cell* pCell, Phenotype& phenotype, double dt );
 void phase_link_division( Cell* pCell, Phenotype& phenotype, double dt );
 void live_phase_entry_function_cell_death( Cell* pCell, Phenotype& phenotype, double dt );
 
 void empty_cna_function( Cell* pCell, Genotype& genotype);
-void copy_number_alteration_model( Cell* pCell, Genotype& genotype);
-void cna_fitness_model(Cell* pCell, Genotype& genotype);
-double generate_double_exponential_rv(double rate);
+void add_velocity( Cell* pCell, Phenotype& phenotype, double dt );

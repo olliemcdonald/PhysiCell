@@ -157,22 +157,6 @@ int main( int argc, char* argv[] )
 
 		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt )
 		{
-			// include treatment at time 200
-			if( fabs(PhysiCell_globals.current_time - 200)<= 0.01*diffusion_dt )
-			{
-				for( int i=0; i < (*all_cells).size(); i++ )
-				{
-					// switch all currently living cells to under treatment types
-					if( (*all_cells)[i]->type_name == "sensitive" )
-					{
-						(*all_cells)[i]->convert_to_cell_definition(*(cell_definition_vector[2]));
-					}
-					else if( (*all_cells)[i]->type_name == "resistant" )
-					{
-						(*all_cells)[i]->convert_to_cell_definition(*(cell_definition_vector[3]));
-					}
-				}
-			}
 			// save data if it's time.
 			if( fabs( PhysiCell_globals.current_time - PhysiCell_globals.next_full_save_time ) < 0.01 * diffusion_dt )
 			{

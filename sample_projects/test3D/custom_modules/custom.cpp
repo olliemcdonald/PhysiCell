@@ -82,12 +82,8 @@
 #define CNA_MODEL empty_cna_function;
 #define CNA_PROB 0.00
 
-
-// declare cell definitions here
-int num_cell_definitions = 0;
-std::vector<int> *cell_counts_by_def = new std::vector<int>;
-std::vector<Cell_Definition*> cell_definition_vector;
-
+Cell_Definition fixed_cell;
+Cell_Definition stationary_cell;
 Cell_Definition motile_cell;
 Cycle_Model birth_death;
 
@@ -159,19 +155,20 @@ void create_cell_types( void )
 	// and less proliferative
 	motile_cell = cell_defaults;
 	motile_cell.name = "motile tumor cell";
+	motile_cell.type = 1;
 
 	// make sure the new cell type has its own reference phenotyhpe
 
 	motile_cell.parameters.pReference_live_phenotype = &( motile_cell.phenotype );
 
 	// enable random motility
-	motile_cell.phenotype.motility.is_motile = false;//true;
-	motile_cell.phenotype.motility.persistence_time = 15.0; // 15 minutes
-	motile_cell.phenotype.motility.migration_speed = 0.25; // 0.25 micron/minute
+	motile_cell.phenotype.motility.is_motile = true;//true;
+	motile_cell.phenotype.motility.persistence_time = 0; // 15 minutes
+	motile_cell.phenotype.motility.migration_speed = 0.0; // 0.25 micron/minute
 	motile_cell.phenotype.motility.migration_bias = 0.0;// completely random
 
 	// Set cell-cell adhesion to 5% of other cells
-	motile_cell.phenotype.mechanics.cell_cell_adhesion_strength *= 0.05;
+	motile_cell.phenotype.mechanics.cell_cell_adhesion_strength *= 10;
 
 	// NOTE: To alter the transition rate of a specific types
 	//motile_cell.phenotype.cycle.data.transition_rate(0,0) = 1.0;
@@ -179,26 +176,34 @@ void create_cell_types( void )
 	// Set apoptosis to zero
 	motile_cell.phenotype.death.rates[apoptosis_model_index] = 0.0;
 
-	// Definition of sensitive and resistant cells
-	Cell_Definition* sensitive = new Cell_Definition(motile_cell);
-	cell_definition_vector.push_back(sensitive);
-	create_new_cell_definition( sensitive, "sensitive", BIRTH_RATE_SENS, DEATH_RATE_SENS, &num_cell_definitions );
-	(*cell_counts_by_def).push_back(0);
+	motile_cell.phenotype.cycle.data.transition_rate(0, 0) = 0.001;
+	motile_cell.phenotype.cycle.data.transition_rate(0, 1) = 0;
+	motile_cell.functions.custom_cell_rule = add_velocity;
 
-	Cell_Definition* resistant = new Cell_Definition(motile_cell);
-	cell_definition_vector.push_back(resistant);
-	create_new_cell_definition( resistant, "resistant", BIRTH_RATE_RES, DEATH_RATE_RES, &num_cell_definitions );
-	(*cell_counts_by_def).push_back(0);
 
-	Cell_Definition* sensitive_treatment = new Cell_Definition(motile_cell);
-	cell_definition_vector.push_back(sensitive_treatment);
-	create_new_cell_definition( sensitive_treatment, "sensitive_treatment", BIRTH_RATE_TRT_SENS, DEATH_RATE_TRT_SENS, &num_cell_definitions );
-	(*cell_counts_by_def).push_back(0);
+	stationary_cell = motile_cell;
+	stationary_cell.type = 2;
+	stationary_cell.name = "stationary tumor cell";
+	stationary_cell.phenotype.motility.is_motile = false;
+	stationary_cell.phenotype.motility.persistence_time = 0; // 15 minutes
+	stationary_cell.phenotype.motility.migration_speed = 0.0; // 0.25 micron/minute
+	stationary_cell.phenotype.motility.migration_bias = 0.0;// completely random
+	stationary_cell.functions.custom_cell_rule = NULL;
+	stationary_cell.phenotype.cycle.data.transition_rate(0, 0) = 0;
+	stationary_cell.phenotype.cycle.data.transition_rate(0, 1) = 0;
 
-	Cell_Definition* resistant_treatment = new Cell_Definition(motile_cell);
-	cell_definition_vector.push_back(resistant_treatment);
-	create_new_cell_definition( resistant_treatment, "resistant_treatment", BIRTH_RATE_TRT_RES, DEATH_RATE_TRT_RES, &num_cell_definitions );
-	(*cell_counts_by_def).push_back(0);
+	fixed_cell = motile_cell;
+	fixed_cell.type = 3;
+	fixed_cell.name = "fixed tumor cell";
+	fixed_cell.phenotype.motility.is_motile = false;
+	fixed_cell.phenotype.motility.persistence_time = 0; // 15 minutes
+	fixed_cell.phenotype.motility.migration_speed = 0.0; // 0.25 micron/minute
+	fixed_cell.phenotype.motility.migration_bias = 0.0;// completely random
+	fixed_cell.functions.custom_cell_rule = add_velocity;
+	fixed_cell.phenotype.cycle.data.transition_rate(0, 0) = 0;
+	fixed_cell.phenotype.cycle.data.transition_rate(0, 1) = 0;
+
+
 
 	return;
 }
@@ -207,9 +212,9 @@ void setup_microenvironment( void )
 {
 	// set domain parameters
 
-	default_microenvironment_options.X_range = {-300, 300};
-	default_microenvironment_options.Y_range = {-300, 300};
-	default_microenvironment_options.Z_range = {-30, 30};
+	default_microenvironment_options.X_range = {-200, 200};
+	default_microenvironment_options.Y_range = {-200, 200};
+	default_microenvironment_options.Z_range = {-10, 10};
 	default_microenvironment_options.simulate_2D = true; // 3D!
 
 	// no gradients need for this example
@@ -280,17 +285,21 @@ void setup_tissue( std::string input_file )
 		ss >> y_coord;
 		ss >> z_coord;
 		ss >> cell_type;
-		if(cell_type == "sensitive")
+		if(cell_type == "stationary")
 		{
-			pC = create_cell( *(cell_definition_vector[0]) ); // sensitive cell definition
+			pC = create_cell( stationary_cell ); // sensitive cell definition
 		}
-		else if(cell_type == "resistant")
+		else if(cell_type == "motile")
 		{
-			pC = create_cell( *(cell_definition_vector[1]) ); // resistant cell definition
+			pC = create_cell( motile_cell ); // resistant cell definition
+		}
+		else if(cell_type == "fixed")
+		{
+			pC = create_cell(fixed_cell); // motile cell definition
 		}
 		else
 		{
-			pC = create_cell(); // motile cell definition
+			pC = create_cell();
 		}
 
 		pC->assign_position( x_coord, y_coord, z_coord );
@@ -330,14 +339,6 @@ void create_birthdeath_model( void )
 	return;
 }
 
-void create_new_cell_definition( Cell_Definition* new_def, std::string def_name, double birth_rate, double death_rate, int* num_types )
-{
-	new_def->name = def_name;
-	new_def->phenotype.cycle.data.transition_rate(0,0) = birth_rate;
-	new_def->phenotype.cycle.data.transition_rate(0,1) = death_rate;
-	int curr_index = *num_types;
-	(*num_types)++;
-}
 
 void phase_link_death( Cell* pCell, Phenotype& phenotype, double dt )
 {
@@ -357,55 +358,19 @@ void empty_cna_function( Cell* pCell, Genotype& genotype)
 	return;
 }
 
-void copy_number_alteration_model( Cell* pCell, Genotype& genotype)
+void add_velocity( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	if ( genotype.cna_prob > 0.0)
+	if(pCell->type == 2)
 	{
-		double cna_runif = UniformRandom();
-		if (cna_runif < genotype.cna_prob)
-		{
-			genotype.copynumber_change();
-
-			(*genotype.genome_file) <<
-				PhysiCell_globals.current_time << "\t" <<
-				genotype.genotype_id << "\t" <<
-				pCell->phenotype.cycle.data.transition_rates[0][0] << "\t" <<
-				pCell->phenotype.cycle.data.transition_rates[0][1] << std::endl;
-		}
+		return;
 	}
-	return;
-}
-
-// Create model with increased fitness for new mutations from exponential RNG
-void cna_fitness_model(Cell* pCell, Genotype& genotype)
-{
-	if ( genotype.cna_prob > 0.0)
+	if(pCell->type == 3)
 	{
-		double cna_runif = UniformRandom();
-		if (cna_runif < genotype.cna_prob)
-		{
-			// Add an additional fitness that is an exponential increase with rate 30
-			double addl_fitness = generate_double_exponential_rv(50.0);
-			pCell->phenotype.cycle.data.transition_rates[0][0] = fmax(pCell->phenotype.cycle.data.transition_rates[0][0]+addl_fitness, 0);
-
-			genotype.copynumber_change();
-
-			(*genotype.genome_file) <<
-				PhysiCell_globals.current_time << "\t" <<
-				genotype.genotype_id << "\t" <<
-				pCell->phenotype.cycle.data.transition_rates[0][0] << "\t" <<
-				pCell->phenotype.cycle.data.transition_rates[0][1] << std::endl;
-		}
+		pCell->velocity = {0.0, 0.0, 0.0};
 	}
-	return;
-}
-
-double generate_double_exponential_rv(double rate)
-{
-	double fitness = -log(1 - UniformRandom()) / rate;
-	if(UniformRandom() <= 0.5)
+	else
 	{
-		fitness *= -1;
+		//std::vector<double> new_velocity = {-0.3, 0.0, 0.0};
+		//pCell->velocity += new_velocity;
 	}
-	return fitness;
 }
