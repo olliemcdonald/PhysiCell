@@ -168,7 +168,6 @@ void create_cell_types( void )
 	motile_cell.phenotype.motility.migration_bias = 0.0;// completely random
 
 	// Set cell-cell adhesion to 5% of other cells
-	motile_cell.phenotype.mechanics.cell_cell_adhesion_strength *= 10;
 
 	// NOTE: To alter the transition rate of a specific types
 	//motile_cell.phenotype.cycle.data.transition_rate(0,0) = 1.0;
@@ -191,6 +190,7 @@ void create_cell_types( void )
 	stationary_cell.functions.custom_cell_rule = NULL;
 	stationary_cell.phenotype.cycle.data.transition_rate(0, 0) = 0;
 	stationary_cell.phenotype.cycle.data.transition_rate(0, 1) = 0;
+	stationary_cell.phenotype.mechanics.cell_cell_adhesion_strength *= 10;
 
 	fixed_cell = motile_cell;
 	fixed_cell.type = 3;
@@ -202,6 +202,7 @@ void create_cell_types( void )
 	fixed_cell.functions.custom_cell_rule = add_velocity;
 	fixed_cell.phenotype.cycle.data.transition_rate(0, 0) = 0;
 	fixed_cell.phenotype.cycle.data.transition_rate(0, 1) = 0;
+	fixed_cell.phenotype.mechanics.cell_cell_adhesion_strength *= 10;
 
 
 
