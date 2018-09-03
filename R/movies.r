@@ -1,6 +1,6 @@
 library(tidyverse)
 library(rgl)
-setwd("~/Dropbox/PhysiCell/output/")
+setwd("~/Desktop/PhysiCell/output/")
 
 dat <- read.delim("cells_119.txt", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 dat$genotype <- as.factor(dat$genotype)
@@ -53,7 +53,7 @@ for(i in 2:length(table(dat$genotype)))
   rgl.snapshot(paste("img_", sprintf("%04d", i), ".png", sep = ""))
 }
 
-location <- "~/Dropbox/PhysiCell/output"
+location <- "~/Desktop/PhysiCell/output"
 system(paste("mogrify -format jpg ", location, "/*.png", sep = ""))
 system(paste("ffmpeg -r 10 -y -i ", location, "/img_%04d.jpg -f mp4 -vcodec libx264 -pix_fmt yuv420p ", location, "/subclone.mp4", sep = ""))
 system("rm img*")

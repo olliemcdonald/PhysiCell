@@ -69,9 +69,9 @@
 
 // macros for customizable cell parameters and scenarios
 #define BIRTH_RATE_SENS 0.01
-#define DEATH_RATE_SENS 0.002
-#define BIRTH_RATE_RES 0.009
-#define DEATH_RATE_RES 0.002
+#define DEATH_RATE_SENS 0.00
+#define BIRTH_RATE_RES 0.001
+#define DEATH_RATE_RES 0.000
 
 #define BIRTH_RATE_TRT_SENS 0.0005
 #define DEATH_RATE_TRT_SENS 0.02
@@ -79,8 +79,8 @@
 #define DEATH_RATE_TRT_RES 0.002
 
 // copy_number_alteration_model or cna_fitness_model
-#define CNA_MODEL empty_cna_function;
-#define CNA_PROB 0.00
+#define CNA_MODEL copy_number_alteration_model;
+#define CNA_PROB 0.1
 
 
 // declare cell definitions here

@@ -33,7 +33,7 @@ j <- 1
 for(i in sort(unique(cells$curr_time)))
 {
   g <- cells %>% filter(curr_time == i) %>%
-    ggplot(aes(x = x, y = y, size = z - min(cells$z), color = as.factor(type))) +
+    ggplot(aes(x = x, y = y, size = z - min(cells$z), color = as.factor(genotype))) +
     geom_point(alpha = 0.2) + scale_radius() + xlim(-200, 200) + ylim(-200,200) +
     theme_minimal() + theme(legend.position = "none")
   ggsave(g, filename = paste("./img", sprintf("%04d", j), ".png", sep = ""),

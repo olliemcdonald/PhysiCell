@@ -158,7 +158,7 @@ int main( int argc, char* argv[] )
 		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt )
 		{
 			// include treatment at time 200
-			if( fabs(PhysiCell_globals.current_time - 200)<= 0.01*diffusion_dt )
+			if( fabs(PhysiCell_globals.current_time - 1500)<= 0.01*diffusion_dt )
 			{
 				for( int i=0; i < (*all_cells).size(); i++ )
 				{
