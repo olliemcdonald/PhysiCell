@@ -4,6 +4,8 @@ trajectory <- read.delim("simulation_report.txt")
 plot(trajectory$simulated.time, log(trajectory$num.cells))
 
 
+
+
 cellfiles <- list.files()
 cellfiles <- cellfiles[grepl("cells_", cellfiles)]
 
@@ -28,16 +30,21 @@ for(i in 1:length(cellfiles))
   cells <- rbind(cells, temp_cells)
 }
 
+cells %>% filter(curr_time == max(curr_time)) %>%
+  ggplot(aes(x = x, y = y, size = z - min(cells$z), color = as.factor(genotype))) +
+  geom_point(alpha = 0.2) + scale_radius() + xlim(-400, 400) + ylim(-400,400) +
+  theme_void() + theme(legend.position = "none")
+
 #system("rm ./plots/*.png")
 j <- 1
 for(i in sort(unique(cells$curr_time)))
 {
   g <- cells %>% filter(curr_time == i) %>%
     ggplot(aes(x = x, y = y, size = z - min(cells$z), color = as.factor(genotype))) +
-    geom_point(alpha = 0.2) + scale_radius() + xlim(-200, 200) + ylim(-200,200) +
-    theme_minimal() + theme(legend.position = "none")
+    geom_point(alpha = 0.2) + scale_radius() + xlim(-400, 400) + ylim(-400,400) +
+    theme_void() + theme(legend.position = "none")
   ggsave(g, filename = paste("./img", sprintf("%04d", j), ".png", sep = ""),
-         width = 3, height = 3)
+         width = 6, height = 6)
   graphics.off()
   j <- j + 1
 }

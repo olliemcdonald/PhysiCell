@@ -244,6 +244,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 	#pragma omp parallel for
 	for( int i=0; i < (*all_cells).size(); i++ )
 	{
+		(*all_cells)[i]->state.neighbors.clear();
 		(*all_cells)[i]->phenotype.secretion.advance( (*all_cells)[i], (*all_cells)[i]->phenotype , diffusion_dt_ );
 	}
 
@@ -272,6 +273,25 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			if((*all_cells)[i]->is_out_of_domain)
 			{ continue; }
 			// (*all_cells)[i]->phenotype.advance_bundled_models( (*all_cells)[i] , time_since_last_cycle );
+
+// Adding in density-dependence
+			for( int j=0; j < (*all_cells).size(); j++ )
+			{
+				double distance = 0;
+				for( int k = 0 ; k < 3 ; k++ )
+				{
+					(*all_cells)[i]->displacement[k] = (*all_cells)[i]->position[k] - (*all_cells)[j]->position[k];
+					distance += (*all_cells)[i]->displacement[k] * (*all_cells)[i]->displacement[k];
+				}
+				// Make sure that the distance is not zero
+				distance = std::max(sqrt(distance), 0.00001);
+				// Note change the distance factor to x.1 where x is number of layers desired ( also need to change custom.cpp)
+				if(distance < 3.1 * (((*all_cells)[i]->phenotype.geometry.radius + (*all_cells)[j]->phenotype.geometry.radius)) && distance > 0.00001)
+				{
+					(*all_cells)[i]->state.neighbors.push_back((*all_cells)[j]);
+				}
+			}
+
 			(*all_cells)[i]->advance_bundled_phenotype_functions( time_since_last_cycle );
 		}
 

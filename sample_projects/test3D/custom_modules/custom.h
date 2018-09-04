@@ -99,3 +99,5 @@ void empty_cna_function( Cell* pCell, Genotype& genotype);
 void copy_number_alteration_model( Cell* pCell, Genotype& genotype);
 void cna_fitness_model(Cell* pCell, Genotype& genotype);
 double generate_double_exponential_rv(double rate);
+
+void density_dep_rate(Cell* pCell, Phenotype& phenotype, double dt);

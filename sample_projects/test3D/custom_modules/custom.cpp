@@ -131,6 +131,8 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
 	cell_defaults.phenotype.sync_to_functions( cell_defaults.functions );
 
+	cell_defaults.functions.custom_cell_rule=density_dep_rate;
+
 	// Set cell size to have radius of 10 - note radius is updated based on volume
 	double radius = 10.0;
 	cell_defaults.phenotype.geometry.radius = radius;
@@ -207,8 +209,8 @@ void setup_microenvironment( void )
 {
 	// set domain parameters
 
-	default_microenvironment_options.X_range = {-300, 300};
-	default_microenvironment_options.Y_range = {-300, 300};
+	default_microenvironment_options.X_range = {-500, 500};
+	default_microenvironment_options.Y_range = {-500, 500};
 	default_microenvironment_options.Z_range = {-30, 30};
 	default_microenvironment_options.simulate_2D = true; // 3D!
 
@@ -351,7 +353,6 @@ void phase_link_division( Cell* pCell, Phenotype& phenotype, double dt )
 	return;
 }
 
-
 void empty_cna_function( Cell* pCell, Genotype& genotype)
 {
 	return;
@@ -408,4 +409,21 @@ double generate_double_exponential_rv(double rate)
 		fitness *= -1;
 	}
 	return fitness;
+}
+
+void density_dep_rate(Cell* pCell, Phenotype& phenotype, double dt)
+{
+//	std::cout << pCell->state.neighbors.size() << "\n";
+// Density dependence for x number of layers from outside - 6, 18, 36 - also need to change line 289 of Physicell_cell_container.cpp
+	if(pCell->state.neighbors.size() >= 36)
+	{
+		//std::cout << "dead\n";
+		//pCell->genotype.genotype_id = "1";
+		pCell->phenotype.cycle.data.transition_rates[0][0] = 0.0;
+	}
+	else
+	{
+		//pCell->genotype.genotype_id = "0";
+		pCell->phenotype.cycle.data.transition_rates[0][0] = BIRTH_RATE_SENS;
+	}
 }
